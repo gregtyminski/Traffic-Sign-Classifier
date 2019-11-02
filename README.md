@@ -4,11 +4,15 @@
 [step-1-lenet-best]: ./images/step-1-lenet-best.png "LeNet - best results"
 [step-1-lenet-t2]: ./images/step-1-lenet-t2.png "LeNet - graph with best results"
 
+This project is a part of:  
+ [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
+
 Overview
 ---
 
 In this project we are going to train a network to recognize traffic signs.\
 The dataset of traffic signs come from [German Traffic Sign Dataset](http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset) and this dataset will be used to train the neural network recognizing traffic signs.\
+This dataset is to large to be kept in GitHub, therefore if you want to run any training job please download the dataset from [this link](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/traffic-signs-data.zip) and unpack it to `data` directory.\
 \
 To track results of all training experiments I use [Neptune.ml](http://neptune.ml) tool.
 ## Step 0: Load The Data
