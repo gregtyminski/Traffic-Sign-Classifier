@@ -16,6 +16,7 @@
 [step-4-lenet-t1-graph]: ./images/step-4-lenet-t1-graph.png "LeNet 4 - with improved brightness and grayscale"
 [step-5-lenet-t1]: ./images/step-5-lenet-t1.png "LeNet 4 - results with data augmentation"
 [step-5-lenet-t1-graph]: ./images/step-5-lenet-t1-graph.png "LeNet 4 - with data augmentation"
+[step-5-lenet-test-data]: ./images/step-5-lenet-test-data.png "LeNet 4 - results with data augmentation on test dataset"
 
 This project is a part of:  
  [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
@@ -201,13 +202,14 @@ dataset.shuffle_dataset()
 ```
 The library [Albumentations](https://github.com/albu/albumentations) is used for data augmentation. Single augmentation step `dataset.agument_dataset()` just adds 1 new image for each already existing in training dataset which is slightly rotated, slightly shifted and slightly brightness modified. As a result 2x bigger dataset is received. As we call it twice, we get 4x bigger dataset with modified images.\
 \
-When we run training job (`LeNet4` network with grayscaled images and without dropout) we have received much better accuracy result __0.96__\
+When we run training job (`LeNet4` network with grayscaled images and without dropout) we have received much better accuracy result __0.971429__\
 ![alt text][step-5-lenet-t1]\
 \
 ... and when we plot the results of trainings:
 ![alt text][step-5-lenet-t1-graph]\
 
-The result on `test` dataset for this training was: __0.96__
+The result on `test` dataset for this training was: __0.950119__
+![alt text][step-5-lenet-test-data]\
 
 ## Verify on random images from internet
 ...
