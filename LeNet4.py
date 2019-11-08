@@ -4,22 +4,23 @@ from tensorflow.contrib.layers import flatten
 from traffic_sign_dataset import TrafficData
 import tensorflow.contrib.slim as slim
 from sklearn.utils import shuffle
+import numpy as np
 
 
-class LeNet():
+class LeNet4():
     def __repr__(self):
-        return 'LeNet()'
+        return 'LeNet4()'
 
     def __init__(self, output_classes: int = 43):
         # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
-        self.my_name = 'LeNet v1'
+        self.my_name = 'LeNet v4'
         self.model_file_name = './lenet'
         self.mu = 0
         self.sigma = 0.1
         self.epochs = 10
         self.batch_size = 128
         self.learn_rate = 0.001
-        self.x = tf.placeholder(tf.float32, (None, 32, 32, 3))
+        self.x = tf.placeholder(tf.float32, (None, 32, 32, 1))
         self.y = tf.placeholder(tf.int32, (None))
         self.one_hot_y = tf.one_hot(self.y, output_classes)
 
@@ -34,7 +35,7 @@ class LeNet():
         self.log_neptune = False
 
         # TODO: Layer 1: Convolutional. Input = 32x32x3. Output = 28x28x6.
-        self.lay1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean=self.mu, stddev=self.sigma))
+        self.lay1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6), mean=self.mu, stddev=self.sigma))
         self.lay1_b = tf.Variable(tf.zeros([6]))
         padding = 'VALID'
         self.layer1 = tf.nn.conv2d(self.x, self.lay1_W, strides=[1, 1, 1, 1], padding=padding) + self.lay1_b
@@ -104,7 +105,7 @@ class LeNet():
         '''
         return self.network
 
-    def set_hiperparams(self, epochs: int = 10, batch_size: int = 128, learn_rate: float = 0.001):
+    def set_hiperparams(self, epochs: int = 10, batch_size: int = 64, learn_rate: float = 0.002):
         '''
         Method sets hiperparameters.
 
@@ -168,6 +169,7 @@ class LeNet():
 
                 validation_accuracy = self.evaluate(x_valid, y_valid)
                 test_accuracy = self.evaluate(x_test, y_test)
+
                 print("EPOCH {} ...".format(i + 1))
                 print("Validation Accuracy = {:.3f}".format(validation_accuracy))
                 print("Test Accuracy = {:.3f}".format(test_accuracy))

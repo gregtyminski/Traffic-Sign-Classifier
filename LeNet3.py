@@ -6,20 +6,21 @@ import tensorflow.contrib.slim as slim
 from sklearn.utils import shuffle
 
 
-class LeNet():
+class LeNet3():
     def __repr__(self):
-        return 'LeNet()'
+        return 'LeNet3()'
 
     def __init__(self, output_classes: int = 43):
         # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
-        self.my_name = 'LeNet v1'
+        self.my_name = 'LeNet v3'
         self.model_file_name = './lenet'
         self.mu = 0
         self.sigma = 0.1
         self.epochs = 10
         self.batch_size = 128
         self.learn_rate = 0.001
-        self.x = tf.placeholder(tf.float32, (None, 32, 32, 3))
+        self.dropout_val = 0.5
+        self.x = tf.placeholder(tf.float32, (None, 32, 32, 1))
         self.y = tf.placeholder(tf.int32, (None))
         self.one_hot_y = tf.one_hot(self.y, output_classes)
 
@@ -34,7 +35,7 @@ class LeNet():
         self.log_neptune = False
 
         # TODO: Layer 1: Convolutional. Input = 32x32x3. Output = 28x28x6.
-        self.lay1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean=self.mu, stddev=self.sigma))
+        self.lay1_W = tf.Variable(tf.truncated_normal(shape=(5, 5, 1, 6), mean=self.mu, stddev=self.sigma))
         self.lay1_b = tf.Variable(tf.zeros([6]))
         padding = 'VALID'
         self.layer1 = tf.nn.conv2d(self.x, self.lay1_W, strides=[1, 1, 1, 1], padding=padding) + self.lay1_b
@@ -67,6 +68,9 @@ class LeNet():
         # TODO: Flatten. Input = 5x5x16. Output = 400.
         self.flat = flatten(self.layer2)
 
+        # TODO: Dropout 1
+        self.flat = tf.nn.dropout(self.flat, self.dropout_val)
+
         # TODO: Layer 3: Fully Connected. Input = 400. Output = 120.
         self.lay3_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean=self.mu, stddev=self.sigma))
         self.lay3_b = tf.Variable(tf.zeros([120]))
@@ -82,6 +86,9 @@ class LeNet():
 
         # TODO: Activation.
         self.layer4 = tf.nn.relu(self.layer4)
+
+        # TODO: Dropout 2
+        self.layer4 = tf.nn.dropout(self.layer4, self.dropout_val)
 
         # TODO: Layer 5: Fully Connected. Input = 84. Output = 43.
         self.lay5_W = tf.Variable(tf.truncated_normal(shape=(84, output_classes), mean=self.mu, stddev=self.sigma))
@@ -104,7 +111,8 @@ class LeNet():
         '''
         return self.network
 
-    def set_hiperparams(self, epochs: int = 10, batch_size: int = 128, learn_rate: float = 0.001):
+    def set_hiperparams(self, epochs: int = 10, batch_size: int = 64, learn_rate: float = 0.002,
+                        dropout_val: float = 0.5):
         '''
         Method sets hiperparameters.
 
@@ -116,6 +124,7 @@ class LeNet():
         self.epochs = epochs
         self.batch_size = batch_size
         self.learn_rate = learn_rate
+        self.dropout_val = dropout_val
 
     def evaluate(self, X_data, y_data):
         num_examples = len(X_data)
@@ -135,8 +144,10 @@ class LeNet():
         if self.log_neptune:
             experiment = neptune.create_experiment(name=self.my_name, params={'batch_size': self.batch_size,
                                                                               'lr': self.learn_rate,
-                                                                              'nr_epochs': self.epochs})
+                                                                              'nr_epochs': self.epochs,
+                                                                              'dropout': self.dropout_val})
             experiment.append_tag(self.my_name)
+            experiment.append_tag('double_dropout')
             if neptune_tags is not None:
                 [experiment.append_tag(tag) for tag in neptune_tags]
 

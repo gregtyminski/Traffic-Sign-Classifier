@@ -1,8 +1,21 @@
 # Project: Build a Traffic Sign Recognition Program
 
 [//]: # (Image References)
-[step-1-lenet-best]: ./images/step-1-lenet-best.png "LeNet - best results"
-[step-1-lenet-t2]: ./images/step-1-lenet-t2.png "LeNet - graph with best results"
+[step-0-preview-data]: ./images/step-0-preview-data.png "Initial dataset preview"
+[step-3-preview-data]: ./images/step-3-preview-data.png "Dataset with grayscale and brightness correction"
+[step-1-lenet-best1]: ./images/step-1-lenet-best-part1.png "LeNet - best results"
+[step-1-lenet-best2]: ./images/step-1-lenet-best-part2.png "LeNet - best results"
+[step-1-lenet-t2-1]: ./images/step-1-lenet-t2-1.png "LeNet - graph with best results"
+[step-1-lenet-t2-2]: ./images/step-1-lenet-t2-2.png "LeNet - graph with best results"
+[dataset-histogram]: ./images/dataset-histogram.png "Dataset histogram"
+[step-2-lenet-t1]: ./images/step-2-lenet-t1.png "LeNet 2 - dropout results"
+[step-2-lenet-t1-graph]: ./images/step-2-lenet-t1-graph.png "LeNet 2 - graph"
+[step-3-lenet-t1]: ./images/step-3-lenet-t1.png "LeNet 3 - dropout results with improved brightness and grayscale"
+[step-3-lenet-t1-graph]: ./images/step-3-lenet-t1-graph.png "LeNet 3 - graph with improved brightness and grayscale"
+[step-4-lenet-t1]: ./images/step-4-lenet-t1.png "LeNet 4 - results with improved brightness and grayscale"
+[step-4-lenet-t1-graph]: ./images/step-4-lenet-t1-graph.png "LeNet 4 - with improved brightness and grayscale"
+[step-5-lenet-t1]: ./images/step-5-lenet-t1.png "LeNet 4 - results with data augmentation"
+[step-5-lenet-t1-graph]: ./images/step-5-lenet-t1-graph.png "LeNet 4 - with data augmentation"
 
 This project is a part of:  
  [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
@@ -38,16 +51,163 @@ X_train, y_train = dataset.get_training_dataset() # get training part of dataset
 X_valid, y_valid = dataset.get_validation_dataset() # get validation part of dataset
 X_test, y_test = dataset.get_testing_dataset() # get testing part of dataset
 ```
-The class `TrafficData` contains as well method `normalize_data()` to normalize the dataset (i.e. change values of pixels from 0..255 to 0..1) as well as the method `shuffle_dataset()` to randomize the order of images in dataset.
+
+#### Dataset preview
+When the dataset is loaded, we can preview some random images from `train` dataset just by calling `dataset.preview_random()` method.\
+We will obtain something like:\
+![alt text][step-0-preview-data]
+
+#### Dataset histogram
+Let's have a look on the histogram of classes in dataset.
+![alt text][dataset-histogram]
+We can see here, that some of the classes in dataset have 10x less pictures than the other ones. These are:
+```text
+Speed limit (20km/h)
+Speed limit (100km/h)
+Vehicles over 3.5 metric tons prohibited
+Dangerous curve to the left
+Road narrows on the right
+Pedestrians
+Bicycles crossing
+End of all speed and passing limits
+Go straight or left
+Keep left
+End of no passing
+```
+
+#### Dataset normalization
+In this example we can clearly see, that some of images are very dark. Probably too dark for humans eye to recognize the sign.
+\
+The class `TrafficData` contains method `normalize_data()` to normalize the dataset (i.e. change values of pixels from 0..255 to 0..1) as well as the method `shuffle_dataset()` to randomize the order of images in dataset.
  
-## Step 1: Train same LeNet as in MNIST example 
+## Step 1: Train LeNet network
 
 In the very first step we are going to train the same LeNet neural network on as is the MNIST example.\
+The LeNet-5 implementation shown in the [classroom](https://classroom.udacity.com/nanodegrees/nd013/parts/fbf77062-5703-404e-b60c-95b78b2f3f9e/modules/6df7ae49-c61c-4bb2-a23e-6527e69209ec/lessons/601ae704-1035-4287-8b11-e2c2716217ad/concepts/d4aca031-508f-4e0b-b493-e7b706120f81) at the end of the CNN lesson is a solid starting point.
 Let's just verify, how good it is.\
 Class `LeNet` with model architecture is defined in the [LeNet.py](LeNet.py) file.\
 It's input and output shape is adjusted for Traffic Sign Dataset (3-channel color with 43-classes output).\
 I've run grid search over hyperparams with values for `epoch` _(10 or 15)_, `batch_size` _(32, 64, 128, 256, 512, 1024)_ and `learn_rate` _(0.0005, 0.001, 0.002)_
-For several trials we got the validation accuracy up to almost __0.949887__ for `epochs` equal to 10, `batch_size` equal to 64 and `learn_rate` equal to 0.002\
-![alt text][step-1-lenet-best]
+For several trials we got the validation accuracy up to __0.953968__ for `epochs` equal to 10, `batch_size` equal to 64 and `learn_rate` equal to 0.002\
+![alt text][step-1-lenet-best1]\
+\
+![alt text][step-1-lenet-best2]
 The results did not differ much for several hyperparams. However we can clearly show, that smaller `batch_size` resulted in better result. Values for `learn_rate` below _0.001_ did not give satisfying results and the number of `epochs` bigger than 10 gave no better results (see graph below).
-![alt text][step-1-lenet-t2]
+![alt text][step-1-lenet-t2-1]\
+\
+![alt text][step-1-lenet-t2-2]\
+This `LeNet` model has following architecture:\
+
+| Variables:   | name | type shape | [size] |
+|--------------|------|--------------|--------|
+| Variable:0   | float32_ref | 5x5x3x6 | [450, bytes: 1800] |
+| Variable_1:0 | float32_ref | 6 | [6, bytes: 24] |
+| Variable_2:0 | float32_ref | 5x5x6x16 | [2400, bytes: 9600] |
+| Variable_3:0 | float32_ref | 16 | [16, bytes: 64] |
+| Variable_4:0 | float32_ref | 400x120 | [48000, bytes: 192000] |
+| Variable_5:0 | float32_ref | 120 | [120, bytes: 480] |
+| Variable_6:0 | float32_ref | 120x84 | [10080, bytes: 40320] |
+| Variable_7:0 | float32_ref | 84 | [84, bytes: 336] |
+| Variable_8:0 | float32_ref | 84x43 | [3612, bytes: 14448] |
+| Variable_9:0 | float32_ref | 43 | [43, bytes: 172] |
+Total size of variables: __64811__\
+Total bytes of variables: __259244__\
+
+## Step 2: Modify LeNet network
+
+We could modify a bit `LeNet` network and try it on this dataset. First modification would be to add `dropout` in the network. Modified `LeNet` is implemented in the file `LeNet2.py`.\
+I've added it in the network first 1 and later 2 dropouts and run grid search over hyperparams in both variants including also dropout value.
+First dropout has been added between 2nd and 3rd layer in network:
+```python
+# layer 2
+self.flat = flatten(self.layer2)
+# dropout
+self.flat = tf.nn.dropout(self.flat, self.dropout_val)
+# layer 3
+self.lay3_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean=self.mu, stddev=self.sigma))
+self.lay3_b = tf.Variable(tf.zeros([120]))
+self.layer3 = tf.matmul(self.flat, self.lay3_W) + self.lay3_b
+```
+... and the second has been added between 4th and 5th layer in network:
+```python
+# layer 4
+self.layer4 = tf.nn.relu(self.layer4)
+# dropout
+self.layer4 = tf.nn.dropout(self.layer4, self.dropout_val)
+# layer 5
+self.lay5_W = tf.Variable(tf.truncated_normal(shape=(84, output_classes), mean=self.mu, stddev=self.sigma))
+self.lay5_b = tf.Variable(tf.zeros([output_classes]))
+self.layer5 = tf.matmul(self.layer4, self.lay5_W) + self.lay5_b
+```
+Here are results from training jobs:
+![alt text][step-2-lenet-t1]\
+\
+... and when we plot the results of trainings:
+![alt text][step-2-lenet-t1-graph]\
+\
+We have actually got worse results (no matter if single droput or double ones and the value of dropout).
+
+## Step 3: Better normalization 
+
+Let's modify the dataset. There are 2 potential improbements:
+- improve brightness
+- change color scale from 3-channel to 1-channel (grayscale)
+
+Brightness correction as well as the change to grayscale color map is implemented in the `TrafficData` class. To include these 2 steps in dataset just 2 params: `brighness` and `grayscale` in dataset normalization need to be added:
+```python
+# initiate and load dataset
+dataset = TrafficData()
+
+# normalize dataset --> change values of pixels from 0..255 to 0..1 & include brightness correction as well as change to grayscale color map
+dataset.normalize_data(brightness=True, grayscale=True)
+``` 
+Normalize dataset looks as follows at the moment:\
+![alt text][step-3-preview-data]\
+
+#### Network with dropout
+
+As dataset input shape has changed, we had to change the network architecture to adapt this input shape. New version of the network __including__ dropout has been implemented in `LeNet3.py`.\
+Training network __with__ dropout gave no result improvement (__0.904535__):'
+![alt text][step-3-lenet-t1]\
+\
+... and when we plot the results of trainings:
+![alt text][step-3-lenet-t1-graph]\
+
+#### Network without dropout
+Training network __without__ dropout (`LeNet4.py`) gave similar best result (__0.944898__) on validation dataset as in dataset without brithness improvements and grayscaled, but the worst result was significantly better (__0.903855__) than previously:'
+![alt text][step-4-lenet-t1]\
+\
+... and when we plot the results of trainings:
+![alt text][step-4-lenet-t1-graph]\
+
+## Step 4: Improve dataset
+
+If we have a look on the dataset classes distribution (part `Step 0: Load The Data`), we clearly see, that distribution of classes is not equal with big differences. The dataset requires improvement --> __augmentation__.\
+Very simple augmentation is implemented in the `TrafficData` class. To double the train dataset we need to just call the method `augment_dataset()` after loading it and before normalization and before shuffling.'
+```python
+from traffic_sign_dataset import TrafficData
+
+# initiate and load dataset
+dataset = TrafficData()
+# augment dataset to get 2x bigger dataset
+dataset.augment_dataset()
+# augment dataset again to get 4x bigger dataset
+dataset.augment_dataset()
+
+# normalize dataset --> change values of pixels from 0..255 to 0..1
+dataset.normalize_data(brightness=True, grayscale=True)
+# randomize the order of images in dataset
+dataset.shuffle_dataset()
+```
+The library [Albumentations](https://github.com/albu/albumentations) is used for data augmentation. Single augmentation step `dataset.agument_dataset()` just adds 1 new image for each already existing in training dataset which is slightly rotated, slightly shifted and slightly brightness modified. As a result 2x bigger dataset is received. As we call it twice, we get 4x bigger dataset with modified images.\
+\
+When we run training job (`LeNet4` network with grayscaled images and without dropout) we have received much better accuracy result __0.96__\
+![alt text][step-5-lenet-t1]\
+\
+... and when we plot the results of trainings:
+![alt text][step-5-lenet-t1-graph]\
+
+The result on `test` dataset for this training was: __0.96__
+
+## Verify on random images from internet
+...
