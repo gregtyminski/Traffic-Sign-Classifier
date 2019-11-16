@@ -239,7 +239,7 @@ When we run training job (`LeNet4` network with grayscaled images and without dr
 The result on `test` dataset for this training was: __0.950119__
 ![alt text][step-5-lenet-test-data]\
 
-## Verify on random images from internet
+## Test performance of model on random images from internet
 
 Last step is to verify the model on random images of german signs downloaded from internet. These pictures are:\
 
@@ -256,7 +256,7 @@ Last step is to verify the model on random images of german signs downloaded fro
 | 9.  | ![alt text][test-img-9] | prob=1.00<br>prob=0.00<br>prob=0.00 | Yield<br>Priority road<br>No vehicles |
 | 10. | ![alt text][test-img-10] | prob=0.89<br>prob=0.11<br>prob=0.00 | Speed limit (50km/h)<br>Speed limit (80km/h)<br>Speed limit (30km/h) |
 
-Some explanation:<br>
+Some explanation of the results:<br>
 1. This is actually traffic sign forbidding parking and stopping the car. This sign was not included in training dataset. Therefore model could not recognize it correctly. It's unknown sign for the model.<br>
 2. Perfect classification. No comment needed.<br>
 3. Perfect classification. No comment needed.<br>
@@ -268,4 +268,9 @@ Some explanation:<br>
 9. Perfect classification. No comment needed.<br>
 10. Very good classification with quite high probability (89%).<br>
 
-The ...
+## Potential improvements
+
+Following further steps might improve model:<br>
+* Add batch normalization in the neural network. This step usually significantly improve model performance.
+* Use another activation function, that generates better results. As written in [This arxiv paper](https://arxiv.org/abs/1908.08681v1), Mish: A Self Regularized Non-Monotonic Neural Activation Function provides better results.<br>
+* Improve dataset. Training dataset clearly shows lots of blurry images (e.g. in speed limit traffic signs) where the numbers are even difficult to be read by human, as well as too dark images or too exposed images, where simple "lightness correction" normalization does not bring good results. 
