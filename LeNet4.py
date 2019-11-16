@@ -11,7 +11,7 @@ class LeNet4():
     def __repr__(self):
         return 'LeNet4()'
 
-    def __init__(self, output_classes: int = 43):
+    def __init__(self, output_classes: int = 43, channels: int = 3):
         # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
         self.my_name = 'LeNet v4'
         self.model_file_name = './lenet'
@@ -20,10 +20,11 @@ class LeNet4():
         self.epochs = 10
         self.batch_size = 128
         self.learn_rate = 0.001
-        self.x = tf.placeholder(tf.float32, (None, 32, 32, 1))
+        self.x = tf.placeholder(tf.float32, (None, 32, 32, channels))
         self.y = tf.placeholder(tf.int32, (None))
         self.one_hot_y = tf.one_hot(self.y, output_classes)
 
+        self.saver = None
         self.dataset = None
         self.accuracy_operation = None
         self.cross_entropy = None
@@ -31,7 +32,6 @@ class LeNet4():
         self.optimizer = None
         self.training_operation = None
         self.correct_prediction = None
-        self.saver = None
         self.log_neptune = False
 
         # TODO: Layer 1: Convolutional. Input = 32x32x3. Output = 28x28x6.
@@ -183,6 +183,12 @@ class LeNet4():
                 experiment.stop()
 
     def predict(self, images):
+        '''
+        Method runs inception method for trained model with given set of images.
+        Method returns label for highest prediction class per each image.
+        :param images: Set of images.
+        :return: label for highest prediction class per each image.
+        '''
         assert images is not None
 
         with tf.Session() as sess:
@@ -193,6 +199,19 @@ class LeNet4():
             values = np.argmax(results, axis=1)
             labels = [self.dataset.label_for(val) for val in values]
             return labels
+
+    def predict_image(self, image):
+        assert image is not None
+
+        image = np.reshape(image, [32, 32, 1])
+        with tf.Session() as sess:
+            # Restore variables from disk.
+            self.saver.restore(sess, self.model_file_name)
+
+            results = self.network.eval(feed_dict={self.x: [image]})
+            # values = np.argmax(results, axis=1)
+            # labels = [self.dataset.label_for(val) for val in values]
+            return results
 
     def model_summary(self):
         '''

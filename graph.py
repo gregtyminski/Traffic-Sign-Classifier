@@ -76,8 +76,14 @@ class Graph():
 
         return histogram
 
-    def adjust_brightness(image: np.ndarray):
-        hls_color = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
+    def adjust_brightness(image: np.ndarray, upscale: bool = False):
+        new_image = image.copy()
+        mmin = np.min(image)
+        mmax = np.max(image)
+        if upscale:
+            new_image = np.multiply(image, 255.)
+
+        hls_color = cv2.cvtColor(new_image, cv2.COLOR_RGB2HLS)
 
         # sizey, sizex = hls_color.shape[0], hls_color.shape[1]
         light_channel = np.array(hls_color[:, :, 1], dtype=np.uint8)
@@ -88,8 +94,6 @@ class Graph():
         if (Graph.CLAHE is None):
             Graph.CLAHE = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
         light_channel = Graph.CLAHE.apply(light_channel)
-        # sat_channel = Graph.CLAHE.apply(sat_channel)
-        # hue_channel = Graph.CLAHE.apply(hue_channel)
 
         stacked = np.dstack((hue_channel, light_channel, sat_channel))
         result = cv2.cvtColor(stacked, cv2.COLOR_HLS2RGB)

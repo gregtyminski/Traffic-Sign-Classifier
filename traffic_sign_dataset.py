@@ -88,18 +88,34 @@ class TrafficData():
         X_array = []
         channels = 3
         for image in data:
-            if brightness:
-                image = Graph.adjust_brightness(image)
-                pass
-            if grayscale:
-                image = Graph.to_grayscale(image)
-                channels = 1
-                pass
-            new_image = np.divide(image, 255.)
+            new_image = self.__normalize_image__(image, brightness, grayscale)
             X_array.append(new_image)
-
+        if grayscale:
+            channels = 1
         result = np.asarray(X_array)
         return result.reshape(result.shape[0], 32, 32, channels)
+
+    def __normalize_image__(self, image: np.ndarray, brightness: bool = False, grayscale: bool = False):
+        '''
+        Method normalizes single image.
+        :param image: Image to be normalized.
+        :param brightness: If brightness shall be corrected.
+        :param grayscale: If color map shall be changed to grascale.
+        :return: Normalized image.
+        '''
+        if brightness:
+            image = Graph.adjust_brightness(image, upscale=True)
+            pass
+        if grayscale:
+            image = Graph.to_grayscale(image)
+            pass
+        min = np.min(image)
+        max = np.max(image)
+        range = max - min
+        #print(min, max, range)
+        if range > 1.:
+            image = np.divide(np.subtract(image, min), range)
+        return image
 
     def shuffle_dataset(self):
         '''
@@ -142,6 +158,25 @@ class TrafficData():
                 # print(x, ', ', y, ', ', image.shape, ', ', image_index, ', ', label)
         plt.tight_layout()
         plt.show()
+
+    def preview_class(self, classid: int = 1, max_cells: int = 10):
+        indexes = np.where(self.y_train == classid)[0]
+        indexes = random.sample(set(indexes), max_cells)
+        f, axes = plt.subplots(1, max_cells, sharey=True, figsize=(12, 12))
+        counter = 0
+        for index in indexes:
+            if counter < max_cells:
+                image = self.X_train[index]
+                img = np.reshape(image, [32, 32])
+                axes[counter].axis('off')
+                axes[counter].imshow(img, cmap='gray')
+                counter = counter + 1
+            elif counter == max_cells:
+                pass
+
+        plt.tight_layout()
+        plt.show()
+        pass
 
     def label_for(self, class_id: int = None):
         if class_id is not None:
